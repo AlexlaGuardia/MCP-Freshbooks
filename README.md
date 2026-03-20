@@ -44,7 +44,7 @@ pip install .
 
 1. Sign up at [freshbooks.com/pages/developer-signup](https://www.freshbooks.com/pages/developer-signup)
 2. Create an OAuth app in the developer portal
-3. Set redirect URI to `http://localhost:8555/callback`
+3. Set redirect URI to `https://localhost:8555/callback`
 4. Copy your Client ID and Client Secret
 
 ### 3. Configure
@@ -52,7 +52,7 @@ pip install .
 ```bash
 export FRESHBOOKS_CLIENT_ID=your_client_id
 export FRESHBOOKS_CLIENT_SECRET=your_client_secret
-export FRESHBOOKS_REDIRECT_URI=http://localhost:8555/callback
+export FRESHBOOKS_REDIRECT_URI=https://localhost:8555/callback
 ```
 
 ### 4. Add to Claude Desktop
@@ -67,7 +67,7 @@ Add to your `claude_desktop_config.json`:
       "env": {
         "FRESHBOOKS_CLIENT_ID": "your_client_id",
         "FRESHBOOKS_CLIENT_SECRET": "your_client_secret",
-        "FRESHBOOKS_REDIRECT_URI": "http://localhost:8555/callback"
+        "FRESHBOOKS_REDIRECT_URI": "https://localhost:8555/callback"
       }
     }
   }

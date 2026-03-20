@@ -1,8 +1,11 @@
 """MCP server for FreshBooks — 25 tools for accounting, invoicing, and business management."""
 
 import json
+import functools
 import threading
 from mcp.server.fastmcp import FastMCP
+
+import httpx
 
 from . import auth, client
 
@@ -40,6 +43,36 @@ def _summarize_list(result: dict, resource_key: str, fields: list[str]) -> str:
     return "\n".join(lines)
 
 
+def _handle_errors(func):
+    """Decorator to catch API errors and return clean messages."""
+    @functools.wraps(func)
+    async def wrapper(*args, **kwargs):
+        try:
+            return await func(*args, **kwargs)
+        except httpx.HTTPStatusError as e:
+            status = e.response.status_code
+            if status == 403:
+                return f"Error: Access denied (HTTP 403). This feature may require a paid FreshBooks plan."
+            if status == 404:
+                return f"Error: Resource not found (HTTP 404)."
+            if status == 401:
+                return f"Error: Authentication expired. Run freshbooks_authenticate again."
+            try:
+                body = e.response.json()
+                errors = body.get("response", {}).get("errors", [])
+                if errors:
+                    msgs = [err.get("message", str(err)) for err in errors]
+                    return f"Error: {'; '.join(msgs)}"
+            except Exception:
+                pass
+            return f"Error: HTTP {status} — {e.response.text[:200]}"
+        except ValueError as e:
+            return f"Error: {e}"
+        except Exception as e:
+            return f"Error: {type(e).__name__}: {e}"
+    return wrapper
+
+
 # ─── Auth Tools ───
 
 @mcp.tool()
@@ -73,6 +106,7 @@ def freshbooks_authenticate_with_code(code: str) -> str:
 
 
 @mcp.tool()
+@_handle_errors
 async def freshbooks_whoami() -> str:
     """Get the current authenticated user's identity, account ID, and business info."""
     identity = await client.whoami()
@@ -82,6 +116,7 @@ async def freshbooks_whoami() -> str:
 # ─── Invoice Tools ───
 
 @mcp.tool()
+@_handle_errors
 async def list_invoices(
     page: int = 1,
     per_page: int = 25,
@@ -101,6 +136,7 @@ async def list_invoices(
 
 
 @mcp.tool()
+@_handle_errors
 async def get_invoice(invoice_id: int) -> str:
     """Get full details of a specific invoice including line items."""
     result = await client.accounting_get("invoices/invoices", invoice_id)
@@ -108,6 +144,7 @@ async def get_invoice(invoice_id: int) -> str:
 
 
 @mcp.tool()
+@_handle_errors
 async def create_invoice(
     customer_id: int,
     lines: list[dict],
@@ -134,6 +171,7 @@ async def create_invoice(
 
 
 @mcp.tool()
+@_handle_errors
 async def update_invoice(invoice_id: int, updates: dict) -> str:
     """Update an invoice. Pass any writable invoice fields as updates dict."""
     result = await client.accounting_update("invoices/invoices", invoice_id, "invoice", updates)
@@ -142,6 +180,7 @@ async def update_invoice(invoice_id: int, updates: dict) -> str:
 
 
 @mcp.tool()
+@_handle_errors
 async def send_invoice(invoice_id: int) -> str:
     """Send an invoice by email to the client."""
     result = await client.accounting_update(
@@ -153,6 +192,7 @@ async def send_invoice(invoice_id: int) -> str:
 
 
 @mcp.tool()
+@_handle_errors
 async def delete_invoice(invoice_id: int) -> str:
     """Delete an invoice permanently."""
     await client.accounting_delete("invoices/invoices", invoice_id)
@@ -162,6 +202,7 @@ async def delete_invoice(invoice_id: int) -> str:
 # ─── Client Tools ───
 
 @mcp.tool()
+@_handle_errors
 async def list_clients(
     page: int = 1,
     per_page: int = 25,
@@ -176,6 +217,7 @@ async def list_clients(
 
 
 @mcp.tool()
+@_handle_errors
 async def get_client(client_id: int) -> str:
     """Get full details of a specific client."""
     result = await client.accounting_get("users/clients", client_id)
@@ -183,6 +225,7 @@ async def get_client(client_id: int) -> str:
 
 
 @mcp.tool()
+@_handle_errors
 async def create_client(
     email: str,
     first_name: str = "",
@@ -207,6 +250,7 @@ async def create_client(
 
 
 @mcp.tool()
+@_handle_errors
 async def update_client(client_id: int, updates: dict) -> str:
     """Update a client. Pass any writable client fields."""
     result = await client.accounting_update("users/clients", client_id, "client", updates)
@@ -217,6 +261,7 @@ async def update_client(client_id: int, updates: dict) -> str:
 # ─── Expense Tools ───
 
 @mcp.tool()
+@_handle_errors
 async def list_expenses(
     page: int = 1,
     per_page: int = 25,
@@ -231,6 +276,7 @@ async def list_expenses(
 
 
 @mcp.tool()
+@_handle_errors
 async def get_expense(expense_id: int) -> str:
     """Get full details of a specific expense."""
     result = await client.accounting_get("expenses/expenses", expense_id)
@@ -238,6 +284,7 @@ async def get_expense(expense_id: int) -> str:
 
 
 @mcp.tool()
+@_handle_errors
 async def create_expense(
     category_id: int,
     staff_id: int,
@@ -269,6 +316,7 @@ async def create_expense(
 # ─── Payment Tools ───
 
 @mcp.tool()
+@_handle_errors
 async def list_payments(
     page: int = 1,
     per_page: int = 25,
@@ -279,6 +327,7 @@ async def list_payments(
 
 
 @mcp.tool()
+@_handle_errors
 async def create_payment(
     invoice_id: int,
     amount: str,
@@ -304,6 +353,7 @@ async def create_payment(
 # ─── Time Entry Tools ───
 
 @mcp.tool()
+@_handle_errors
 async def list_time_entries(
     page: int = 1,
     per_page: int = 25,
@@ -327,6 +377,7 @@ async def list_time_entries(
 
 
 @mcp.tool()
+@_handle_errors
 async def create_time_entry(
     started_at: str,
     duration_seconds: int,
@@ -358,6 +409,7 @@ async def create_time_entry(
 # ─── Project Tools ───
 
 @mcp.tool()
+@_handle_errors
 async def list_projects(
     page: int = 1,
     per_page: int = 25,
@@ -377,6 +429,7 @@ async def list_projects(
 
 
 @mcp.tool()
+@_handle_errors
 async def create_project(
     title: str,
     client_id: int | None = None,
@@ -408,6 +461,7 @@ async def create_project(
 # ─── Estimate Tools ───
 
 @mcp.tool()
+@_handle_errors
 async def list_estimates(
     page: int = 1,
     per_page: int = 25,
@@ -418,6 +472,7 @@ async def list_estimates(
 
 
 @mcp.tool()
+@_handle_errors
 async def create_estimate(
     customer_id: int,
     lines: list[dict],
@@ -441,6 +496,7 @@ async def create_estimate(
 # ─── Report Tools ───
 
 @mcp.tool()
+@_handle_errors
 async def get_report(
     report_type: str,
     start_date: str | None = None,

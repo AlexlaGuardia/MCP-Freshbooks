@@ -1,6 +1,8 @@
 """FreshBooks OAuth2 authentication flow with token persistence."""
 
 import json
+import ssl
+import tempfile
 import time
 import threading
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -22,7 +24,7 @@ def get_config() -> dict:
     import os
     client_id = os.environ.get("FRESHBOOKS_CLIENT_ID", "")
     client_secret = os.environ.get("FRESHBOOKS_CLIENT_SECRET", "")
-    redirect_uri = os.environ.get("FRESHBOOKS_REDIRECT_URI", "http://localhost:8555/callback")
+    redirect_uri = os.environ.get("FRESHBOOKS_REDIRECT_URI", "https://localhost:8555/callback")  # Override for hosted: https://api.guardiacontent.com/freshbooks/callback
     if not client_id or not client_secret:
         raise ValueError(
             "FRESHBOOKS_CLIENT_ID and FRESHBOOKS_CLIENT_SECRET must be set. "
@@ -115,8 +117,23 @@ def get_identity(access_token: str) -> dict:
     }
 
 
+def _generate_self_signed_cert() -> tuple[str, str]:
+    """Generate a temporary self-signed cert for the local HTTPS callback server."""
+    import subprocess
+    cert_dir = tempfile.mkdtemp()
+    cert_file = f"{cert_dir}/cert.pem"
+    key_file = f"{cert_dir}/key.pem"
+    subprocess.run([
+        "openssl", "req", "-x509", "-newkey", "rsa:2048",
+        "-keyout", key_file, "-out", cert_file,
+        "-days", "1", "-nodes",
+        "-subj", "/CN=localhost",
+    ], capture_output=True, check=True)
+    return cert_file, key_file
+
+
 def start_callback_server(config: dict, port: int = 8555) -> dict | None:
-    """Start a local HTTP server to catch the OAuth callback. Blocks until callback received."""
+    """Start a local HTTPS server to catch the OAuth callback. Blocks until callback received."""
     result = {"code": None}
 
     class CallbackHandler(BaseHTTPRequestHandler):
@@ -140,7 +157,15 @@ def start_callback_server(config: dict, port: int = 8555) -> dict | None:
         def log_message(self, format, *args):
             pass  # Suppress logs
 
+    use_https = config["redirect_uri"].startswith("https://")
     server = HTTPServer(("localhost", port), CallbackHandler)
+
+    if use_https:
+        cert_file, key_file = _generate_self_signed_cert()
+        ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        ctx.load_cert_chain(cert_file, key_file)
+        server.socket = ctx.wrap_socket(server.socket, server_side=True)
+
     server.timeout = 120
     server.handle_request()
 
