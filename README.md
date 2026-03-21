@@ -2,6 +2,8 @@
 
 Production-grade MCP server for [FreshBooks](https://www.freshbooks.com/) — 25 tools for invoices, clients, expenses, payments, time tracking, projects, estimates, and financial reports.
 
+[![mcp-freshbooks MCP server](https://glama.ai/mcp/servers/AlexlaGuardia/MCP-Freshbooks/badges/card.svg)](https://glama.ai/mcp/servers/AlexlaGuardia/MCP-Freshbooks)
+
 ## Features
 
 - **25 tools** covering the full FreshBooks accounting workflow
