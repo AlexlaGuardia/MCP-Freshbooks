@@ -3,7 +3,7 @@ title: "OAuth2, Two APIs, and Soft Deletes — Building an MCP Server for FreshB
 published: false
 description: "25 tools for the FreshBooks API, built with Python and the official MCP SDK. Invoices, clients, expenses, time tracking, projects, estimates, and reports — all from Claude, Cursor, or any MCP client."
 tags: mcp, ai, python, freshbooks
-cover_image:
+cover_image: https://raw.githubusercontent.com/AlexlaGuardia/MCP-Freshbooks/main/cover.png
 ---
 
 Most MCP servers assume your target API hands you an API key and gets out of the way. FreshBooks doesn't. It requires full OAuth2, splits its API across two different base URLs, and has resources that can only be soft-deleted. Building this server meant solving problems most MCP tutorials don't prepare you for.
