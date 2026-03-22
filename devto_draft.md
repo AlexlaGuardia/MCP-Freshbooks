@@ -1,14 +1,14 @@
 ---
-title: "I Built an MCP Server for FreshBooks — Here's What I Learned"
+title: "OAuth2, Two APIs, and Soft Deletes — Building an MCP Server for FreshBooks"
 published: false
 description: "25 tools for the FreshBooks API, built with Python and the official MCP SDK. Invoices, clients, expenses, time tracking, projects, estimates, and reports — all from Claude, Cursor, or any MCP client."
 tags: mcp, ai, python, freshbooks
 cover_image:
 ---
 
-FreshBooks has 30 million users. The MCP ecosystem has 19,000+ servers. The best FreshBooks MCP server I could find had 2 GitHub stars and barely worked.
+Most MCP servers assume your target API hands you an API key and gets out of the way. FreshBooks doesn't. It requires full OAuth2, splits its API across two different base URLs, and has resources that can only be soft-deleted. Building this server meant solving problems most MCP tutorials don't prepare you for.
 
-So I built one that does.
+The result: 25 tools covering invoices, clients, expenses, payments, time tracking, projects, estimates, and reports — with the auth flow, API quirks, and deletion edge cases handled for you.
 
 ## What It Does
 
