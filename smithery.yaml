@@ -1,0 +1,24 @@
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties:
+      freshbooksClientId:
+        type: string
+        title: Client ID
+        description: FreshBooks OAuth2 application client ID (from my.freshbooks.com/#/developer)
+      freshbooksClientSecret:
+        type: string
+        title: Client Secret
+        description: FreshBooks OAuth2 application client secret
+    required:
+      - freshbooksClientId
+      - freshbooksClientSecret
+  commandFunction: |-
+    (config) => ({
+      command: 'mcp-freshbooks',
+      env: {
+        FRESHBOOKS_CLIENT_ID: config.freshbooksClientId,
+        FRESHBOOKS_CLIENT_SECRET: config.freshbooksClientSecret
+      }
+    })
