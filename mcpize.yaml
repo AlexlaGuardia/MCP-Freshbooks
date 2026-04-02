@@ -1,0 +1,20 @@
+# MCPize Configuration
+# Docs: https://mcpize.com/docs/mcpize-yaml
+
+version: 1
+
+name: "FreshBooks"
+slug: "freshbooks"
+
+runtime: typescript
+
+build:
+  install: "npm install"
+  command: "npm run build"
+
+start:
+  type: stdio
+  command: "mcp-freshbooks"
+
+bridge:
+  mode: stdio
