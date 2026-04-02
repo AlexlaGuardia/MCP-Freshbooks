@@ -1,4 +1,5 @@
 # mcp-freshbooks
+[![MCPize](https://mcpize.com/badge/@AlexlaGuardia/freshbooks)](https://mcpize.com/mcp/freshbooks)
 
 Production-grade MCP server for [FreshBooks](https://www.freshbooks.com/) — 25 tools for invoices, clients, expenses, payments, time tracking, projects, estimates, and financial reports.
 
@@ -77,6 +78,16 @@ Add to your `claude_desktop_config.json`:
 ### 5. Authenticate
 
 Use the `freshbooks_authenticate` tool on first use. It will give you a URL to open in your browser. After authorizing, tokens are saved to `~/.mcp-freshbooks/tokens.json` and auto-refresh.
+
+## Connect via MCPize
+
+Use this MCP server instantly with no local installation:
+
+```bash
+npx -y mcpize connect @AlexlaGuardia/freshbooks --client claude
+```
+
+Or connect at: **https://mcpize.com/mcp/freshbooks**
 
 ## Usage Examples
 
