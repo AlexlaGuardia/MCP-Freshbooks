@@ -1,10 +1,12 @@
 # mcp-freshbooks
 
-Production-grade MCP server for [FreshBooks](https://www.freshbooks.com/) — 25 tools for invoices, clients, expenses, payments, time tracking, projects, estimates, and financial reports.
+Production-grade MCP server for [FreshBooks](https://www.freshbooks.com/) — 53 tools for invoices, clients, expenses, payments, time tracking, projects, estimates, financial reports, and smart workflows.
 
 ## Features
 
-- **25 tools** covering the full FreshBooks accounting workflow
+- **53 tools** covering the full FreshBooks accounting workflow
+- **Smart workflow tools** — convert estimates to invoices, invoice unbilled time, find overdue clients, get full client summaries
+- **5 financial reports** — P&L, tax summary, accounts aging, balance sheet, payments collected
 - **OAuth2 authentication** with automatic token refresh
 - **Clean output** — summarized lists, formatted details
 - **Production-grade** error handling and rate limit awareness
@@ -12,17 +14,22 @@ Production-grade MCP server for [FreshBooks](https://www.freshbooks.com/) — 25
 
 ## Tools
 
-| Category | Tools | Description |
-|----------|-------|-------------|
-| **Auth** | `freshbooks_authenticate`, `freshbooks_authenticate_with_code`, `freshbooks_whoami` | OAuth2 flow + identity |
-| **Invoices** | `list_invoices`, `get_invoice`, `create_invoice`, `update_invoice`, `send_invoice`, `delete_invoice` | Full invoice lifecycle |
-| **Clients** | `list_clients`, `get_client`, `create_client`, `update_client` | Client management |
-| **Expenses** | `list_expenses`, `get_expense`, `create_expense` | Expense tracking |
-| **Payments** | `list_payments`, `create_payment` | Payment recording |
-| **Time Tracking** | `list_time_entries`, `create_time_entry` | Time entry management |
-| **Projects** | `list_projects`, `create_project` | Project management |
-| **Estimates** | `list_estimates`, `create_estimate` | Estimate creation |
-| **Reports** | `get_report` | Profit & loss, tax summary, payments collected |
+| Category | Tools | Count |
+|----------|-------|-------|
+| **Auth** | `freshbooks_authenticate`, `freshbooks_authenticate_with_code`, `freshbooks_whoami` | 3 |
+| **Invoices** | `list_invoices`, `get_invoice`, `create_invoice`, `update_invoice`, `send_invoice`, `delete_invoice` | 6 |
+| **Recurring** | `list_recurring_invoices`, `create_recurring_invoice`, `update_recurring_invoice` | 3 |
+| **Clients** | `list_clients`, `get_client`, `create_client`, `update_client`, `delete_client` | 5 |
+| **Estimates** | `list_estimates`, `get_estimate`, `create_estimate`, `update_estimate`, `send_estimate` | 5 |
+| **Expenses** | `list_expenses`, `get_expense`, `create_expense`, `update_expense`, `delete_expense` | 5 |
+| **Payments** | `list_payments`, `get_payment`, `create_payment` | 3 |
+| **Time Tracking** | `list_time_entries`, `get_time_entry`, `create_time_entry`, `update_time_entry`, `delete_time_entry` | 5 |
+| **Projects** | `list_projects`, `get_project`, `create_project`, `update_project` | 4 |
+| **Reports** | `get_profit_loss`, `get_tax_summary`, `get_accounts_aging`, `get_balance_sheet`, `get_payments_collected` | 5 |
+| **Items** | `list_items`, `create_item` | 2 |
+| **Categories** | `list_expense_categories` | 1 |
+| **Taxes** | `list_taxes` | 1 |
+| **Workflows** | `convert_estimate_to_invoice`, `get_overdue_invoices`, `get_unbilled_time`, `invoice_from_time`, `client_summary` | 5 |
 
 ## Quick Start
 
@@ -80,14 +87,19 @@ Use the `freshbooks_authenticate` tool on first use. It will give you a URL to o
 
 ## Usage Examples
 
-**List overdue invoices:**
+**Who owes me money?**
 ```
-Use list_invoices with status "outstanding"
+Use get_overdue_invoices to see all past-due clients and total outstanding
 ```
 
-**Create and send an invoice:**
+**Convert a proposal to an invoice:**
 ```
-Create an invoice for client 12345 with a line item for "Web Development" at $1,500, then send it
+Use convert_estimate_to_invoice to turn estimate 456 into a ready-to-send invoice
+```
+
+**Find unbilled work:**
+```
+Use get_unbilled_time to find time entries not yet on any invoice
 ```
 
 **Check profitability:**
@@ -104,7 +116,7 @@ Create a 2-hour time entry for project 789 with note "API integration work"
 
 ```
 src/mcp_freshbooks/
-├── server.py   # MCP server with 25 tool definitions
+├── server.py   # MCP server with 47 tool definitions
 ├── client.py   # FreshBooks API client (httpx async)
 └── auth.py     # OAuth2 flow + token persistence
 ```

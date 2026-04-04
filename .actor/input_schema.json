@@ -1,0 +1,31 @@
+{
+    "title": "FreshBooks MCP Server",
+    "description": "Production-grade MCP server for FreshBooks with 25 tools for invoices, clients, expenses, payments, time tracking, projects, estimates, and reports.",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "freshbooksClientId": {
+            "title": "Client ID",
+            "description": "FreshBooks OAuth2 application Client ID. Create an app at https://my.freshbooks.com/#/developer",
+            "type": "string",
+            "editor": "textfield",
+            "prefill": ""
+        },
+        "freshbooksClientSecret": {
+            "title": "Client Secret",
+            "description": "FreshBooks OAuth2 application Client Secret.",
+            "type": "string",
+            "editor": "textfield",
+            "isSecret": true,
+            "prefill": ""
+        },
+        "freshbooksRedirectUri": {
+            "title": "Redirect URI",
+            "description": "OAuth2 redirect URI configured in your FreshBooks app.",
+            "type": "string",
+            "editor": "textfield",
+            "prefill": "https://localhost:8555/callback"
+        }
+    },
+    "required": ["freshbooksClientId", "freshbooksClientSecret"]
+}
