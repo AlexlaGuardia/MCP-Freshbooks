@@ -1,0 +1,11 @@
+version: 1
+name: freshbooks
+runtime: python
+entry: src/mcp_freshbooks/server.py
+
+build:
+  install: pip install -r requirements.txt
+
+startCommand:
+  type: http
+  command: python -m mcp_freshbooks.server
